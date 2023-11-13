@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<div class="container mt-4">
+    <h2 class="text-center">Listado de Productos por Categoria</h2>
+    
+    <!-- Tabla para mostrar los productos -->
+    <table class="table table-bordered table-hover mt-5">
+        <!-- Encabezado de la tabla -->
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <!-- Cuerpo de la tabla -->
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.nombre }}</td>
+                <td>{{ producto.descripcion }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>
+                    <!-- Aquí puedes agregar un enlace a más detalles del producto si lo deseas -->
+                    <a href="{% url 'producto_detalle' producto.id %}" class="btn btn-primary btn-sm">Ver Más</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center">No hay productos en esta categoría.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

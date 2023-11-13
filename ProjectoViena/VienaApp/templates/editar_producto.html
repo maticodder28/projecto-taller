@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<div class="container mt-4">
+    <h2>Editar Producto</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Campo Nombre -->
+        <div class="mb-3">
+            <label for="id_nombre" class="form-label">{{ form.nombre.label }}</label>
+            {{ form.nombre }}
+            {{ form.nombre.errors }}
+        </div>
+
+        <!-- Campo Descripción -->
+        <div class="mb-3">
+            <label for="id_descripcion" class="form-label">{{ form.descripcion.label }}</label>
+            {{ form.descripcion }}
+            {{ form.descripcion.errors }}
+        </div>
+
+        <!-- Campo Precio -->
+        <div class="mb-3">
+            <label for="id_precio" class="form-label">{{ form.precio.label }}</label>
+            {{ form.precio }}
+            {{ form.precio.errors }}
+        </div>
+
+        <!-- Campo Categoría -->
+        <div class="mb-3">
+            <label for="id_categoria" class="form-label">{{ form.categoria.label }}</label>
+            {{ form.categoria }}
+            {{ form.categoria.errors }}
+        </div>
+
+        <!-- Campo Imagen -->
+        <div class="mb-3">
+            <label for="id_imagen" class="form-label">{{ form.imagen.label }}</label>
+            <input type="file" class="form-control" id="id_imagen" name="{{ form.imagen.name }}">
+            {% if form.imagen.value %}
+                <div class="mt-2">
+                    <strong>Imagen Actual:</strong>
+                    <img src="{{ form.imagen.value.url }}" alt="Imagen actual" style="max-width: 200px; max-height: 200px;"/>
+                    <a href="{{ form.imagen.value.url }}" target="_blank">Ver Imagen Completa</a>
+                </div>
+            {% endif %}
+            {{ form.imagen.errors }}
+        </div>
+
+        <!-- Botón de Envío -->
+        <button type="submit" class="btn btn-success">Guardar Cambios</button>
+    </form>
+</div>
+
+{% endblock %}
