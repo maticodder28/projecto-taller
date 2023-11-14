@@ -1,7 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from tiendaApp.forms import ProductoForm
-from tiendaApp.models import Productos, Categoria
+from tiendaApp.forms import ProductoForm, RegistroUsuarioForm
+from tiendaApp.models import Productos, Categoria, Usuarios
 from django.db.models import Q
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm
 
 # Create your views here.
 def base(request):
@@ -79,3 +83,34 @@ def eliminar_producto(request, producto_id):
     
     # Renderiza una página de confirmación de eliminación (puedes crearla si lo deseas)
     return render(request, 'confirmar_eliminacion.html', {'producto': producto})
+
+@staff_member_required
+def registro_usuario(request):
+    if request.method == 'POST':
+        user_form = UserCreationForm(request.POST)
+        profile_form = RegistroUsuarioForm(request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            user = user_form.save()
+            profile = profile_form.save(commit=False)
+            profile.user = user
+            profile.save()
+            return redirect('inicio')  # Redirige a donde necesites
+    else:
+        user_form = UserCreationForm()
+        profile_form = RegistroUsuarioForm()
+    return render(request, 'registro_usuario.html', {'user_form': user_form, 'profile_form': profile_form})
+
+def iniciar_sesion(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('inicio')
+    else:
+        form = AuthenticationForm()
+    return render(request, 'login.html', {'form': form})
+
+def cerrar_sesion(request):
+    logout(request)  # Esta línea efectivamente cierra la sesión del usuario
+    return redirect('login')  # Redirige al usuario a la página de inicio de sesión

@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from tiendaApp.choices import *
+from django.contrib.auth.models import User
+
 
 # Create your models here.
 class TipoUsuario(models.Model):
@@ -16,23 +18,21 @@ class TipoUsuario(models.Model):
         ordering = ["nombre", "descripcion"]
 
 class Usuarios(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
+    tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE)
+    estado = models.CharField(max_length=50, choices=EstadoUsuario, default='Activo')
     nombre = models.CharField(max_length=50)
     apellido = models.CharField(max_length=50)
     rut = models.CharField(max_length=12)
-    email = models.CharField(max_length=50)
-    password = models.CharField(max_length=50)
-    password2 = models.CharField(max_length=50)
     telefono = models.CharField(max_length=12)
-    tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=50, choices=EstadoUsuario, default='Activo')
 
     def __str__(self):
-        return "{} {} {} {} {} {} {} {} {}".format( self.nombre, self.apellido, self.rut, self.email, self.password, self.password2, self.telefono, self.tipoUsuario, self.estado)
+        return "{} {} {} {} {} {} ".format( self.nombre, self.apellido, self.rut, self.telefono, self.tipoUsuario, self.estado)
     
     class Meta:
         verbose_name = "Usuario"
         verbose_name_plural = "Usuarios"
-        ordering = ["nombre", "apellido", "rut", "email", "password", "password2", "telefono" , "tipoUsuario", "estado"]
+        ordering = ["nombre", "apellido", "rut", "telefono" , "tipoUsuario", "estado"]
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)

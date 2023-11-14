@@ -1,5 +1,7 @@
 from django import forms
 from tiendaApp.models import Productos, TipoUsuario, Mesas, Usuarios, Comanda, DetalleComanda, Categoria
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class ProductoForm(forms.ModelForm):
     # Agrega un campo para la categoría que recupera las categorías desde la base de datos
@@ -40,14 +42,11 @@ class UsuarioForm(forms.ModelForm):
 
     class Meta:
         model = Usuarios
-        fields = ['nombre', 'apellido', 'rut', 'email', 'password', 'password2', 'telefono', 'tipoUsuario', 'estado']
+        fields = ['nombre', 'apellido', 'rut', 'telefono', 'tipoUsuario', 'estado']
         widgets = {
             'nombre': forms.TextInput(attrs={'class': 'form-control'}),
             'apellido': forms.TextInput(attrs={'class': 'form-control'}),
             'rut': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
-            'password2': forms.PasswordInput(attrs={'class': 'form-control'}),
             'telefono': forms.TextInput(attrs={'class': 'form-control'}),
             'estado': forms.Select(attrs={'class': 'form-control'}),
             # No es necesario definir un widget para 'tipoUsuario' aquí ya que ya lo definiste arriba
@@ -71,4 +70,32 @@ class ComandaForm(forms.ModelForm):
             'productos': forms.SelectMultiple(attrs={'class': 'form-control'}),
             'estado': forms.Select(attrs={'class': 'form-control'}),
         }
+
+class RegistroUsuarioForm(UserCreationForm):
+    # Campos adicionales del modelo Usuarios
+    nombre = forms.CharField(required=True)
+    apellido = forms.CharField(required=True)
+    rut = forms.CharField(required=True)
+    email = forms.EmailField(required=True)
+    telefono = forms.CharField(required=True)
+    tipoUsuario = forms.ModelChoiceField(queryset=TipoUsuario.objects.all(), required=True)
+
+    class Meta:
+        model = User  # Este es el modelo de usuario de Django
+        fields = ['username', 'nombre', 'apellido', 'rut', 'email', 'password1', 'password2', 'telefono', 'tipoUsuario']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # Aquí puedes establecer los campos adicionales si lo necesitas
+        if commit:
+            user.email = self.cleaned_data['email']  # Guarda el email en el modelo User
+            user.save()
+            # Crea y guarda el objeto Usuarios con los campos adicionales
+            usuario = Usuarios(user=user, nombre=self.cleaned_data['nombre'], 
+                            apellido=self.cleaned_data['apellido'], 
+                            rut=self.cleaned_data['rut'], 
+                            telefono=self.cleaned_data['telefono'], 
+                            tipoUsuario=self.cleaned_data['tipoUsuario'])
+            usuario.save()
+        return user
 

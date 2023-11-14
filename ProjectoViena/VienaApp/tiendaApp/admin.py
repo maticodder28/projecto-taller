@@ -9,8 +9,8 @@ class TipoUsuarioAdmin(ModelAdmin):
     search_fields = ('nombre', 'descripcion' )
 
 class UsuariosAdmin(ModelAdmin):
-    list_display = ('nombre', 'apellido', 'rut', 'email', 'password', 'password2', 'telefono', 'tipoUsuario', 'estado')
-    search_fields = ('nombre', 'apellido', 'rut', 'email', 'password', 'password2', 'telefono', 'tipoUsuario', 'estado')
+    list_display = ('nombre', 'apellido', 'rut','telefono', 'tipoUsuario', 'estado')
+    search_fields = ('nombre', 'apellido', 'rut','telefono', 'tipoUsuario', 'estado')
 
 class ProductosAdmin(ModelAdmin):
     list_display = ('nombre', 'descripcion', 'precio', 'categoria', 'imagen')
