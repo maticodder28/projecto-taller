@@ -2,15 +2,10 @@ from django.contrib import admin
 from django.contrib.admin import ModelAdmin  # Agrega esta línea
 
 # Register your models here.
-from tiendaApp.models import TipoUsuario, Usuarios, Productos, Mesas, Comanda, DetalleComanda, Categoria
+from tiendaApp.models import Productos, Mesas, Comanda, DetalleComanda, Categoria, UserProfile
+from django.contrib.auth.models import User, Group
 
-class TipoUsuarioAdmin(ModelAdmin):
-    list_display = ('nombre', 'descripcion')
-    search_fields = ('nombre', 'descripcion' )
 
-class UsuariosAdmin(ModelAdmin):
-    list_display = ('nombre', 'apellido', 'rut','telefono', 'tipoUsuario', 'estado')
-    search_fields = ('nombre', 'apellido', 'rut','telefono', 'tipoUsuario', 'estado')
 
 class ProductosAdmin(ModelAdmin):
     list_display = ('nombre', 'descripcion', 'precio', 'categoria', 'imagen')
@@ -30,10 +25,13 @@ class CategoriaAdmin(ModelAdmin):
     list_display = ('nombre', 'descripcion', 'imagen')
     search_fields = ('nombre', 'descripcion', 'imagen')
 
-admin.site.register(TipoUsuario, TipoUsuarioAdmin)
-admin.site.register(Usuarios, UsuariosAdmin)
+class UserProfileAdmin(ModelAdmin):
+    list_display = ('user', 'nombre', 'apellido', 'cargo', 'rut')
+    search_fields = ('user', 'nombre', 'apellido', 'cargo', 'rut')
+    
 admin.site.register(Productos, ProductosAdmin)
 admin.site.register(Mesas, MesasAdmin)
 admin.site.register(Comanda, ComandaAdmin)
 admin.site.register(DetalleComanda, DetalleComandaAdmin)
 admin.site.register(Categoria, CategoriaAdmin)
+admin.site.register(UserProfile, UserProfileAdmin)

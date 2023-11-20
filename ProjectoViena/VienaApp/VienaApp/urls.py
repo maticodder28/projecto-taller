@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib.auth import views as auth_views
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from tiendaApp import views as vistas
 from django.conf import settings
 from django.conf.urls.static import static
@@ -25,9 +25,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', vistas.base, name='base'),
     path('inicio/', vistas.inicio, name='inicio'),
-    path('registro/', vistas.registro_usuario, name='registro_usuario'),
-    path('login/', vistas.iniciar_sesion, name='login'),
-    path('logout/', vistas.cerrar_sesion, name='logout'),
     path('agregarproducto/', vistas.ingresoproducto, name='ingresoproducto'),
     path('listaproductos/', vistas.listaproductos, name='listaproductos'),
     path('categoria/<int:categoria_id>/', vistas.productos_por_categoria, name='productos_por_categoria'),
@@ -35,6 +32,10 @@ urlpatterns = [
     path('producto/<int:producto_id>/', vistas.producto_detalle, name='producto_detalle'),
     path('producto/editar/<int:producto_id>/', vistas.editar_producto, name='editar_producto'),
     path('producto/eliminar/<int:producto_id>/', vistas.eliminar_producto, name='eliminar_producto'),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path("registro/", vistas.register_request, name="registro"),
+    path("comandas/", vistas.crear_comanda, name="crear_comanda"),
+    path('cocina/', vistas.vista_cocina, name='vista_cocina'),
 
 ]
 

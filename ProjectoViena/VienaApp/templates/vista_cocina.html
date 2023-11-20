@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<div class="container mt-4">
+    <h2>Comandas de Cocina</h2>
+    <div class="row">
+        {% for comanda in comandas %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-header">
+                        Comanda #{{ comanda.id }}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Fecha: {{ comanda.fecha_creacion|date:"d M Y H:i" }}</h5>
+                        <ul>
+                            {% for detalle in comanda.detallecomanda_set.all %}
+                                <li>{{ detalle.producto.nombre }} x {{ detalle.cantidad }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        Total: ${{ comanda.total }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

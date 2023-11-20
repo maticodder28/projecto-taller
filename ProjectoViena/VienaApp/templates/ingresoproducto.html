@@ -1,50 +1,29 @@
 {% extends 'base.html' %}
+{% load crispy_forms_tags %}
 {% block title %}Ingreso de Producto{% endblock %}
 {% block contenido %}
 
-<div class="container">
-    <div class="row mt-5">
-        <div class="col">
-            <div class="h2">Agregar Producto</div>
-            <form method="POST" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="row mt-5">
-                    {{form.non_field_errors}}
-                    <div class="col-3 mb-3">
-                        {{form.nombre.label_tag}}
-                        {{form.nombre}}
-                        {{form.nombre.errors}}
-                    </div>
-                    <div class="col-3 mb-3">
-                        {{form.descripcion.label_tag}}
-                        {{form.descripcion}}
-                        {{form.descripcion.errors}}
-                    </div>
-                    <div class="col-3 mb-3">
-                        {{form.precio.label_tag}}
-                        {{form.precio}}
-                        {{form.precio.errors}}
-                    </div>
-                    <div class="w-100 mt-3 mb-3"></div>
-                    <div class="col-3 mb-3">
-                        {{form.categoria.label_tag}}
-                        {{form.categoria}}
-                        {{form.categoria.errors}}
-                    </div>
-                    <div class="col-3 mb-3">
-                        {{form.imagen.label_tag}}
-                        {{form.imagen}}
-                        {{form.imagen.errors}}
-                    </div>
-                    <div class="row text-center">
-                    <div class="col-3 mt-3 mb-3">
-                        <a class="btn btn-dark" href="{% url 'inicio' %}">Volver al Inicio</a>
-                    </div>
-                    <div class="col-3 mt-3 mb-3">
-                        <button type="submit" class="btn btn-success">Guardar</button>
-                    </div>
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Agregar Producto</h4>
                 </div>
+                <div class="card-body">
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        {{ form|crispy }}
+                        <div class="text-center mt-3">
+                            <a class="btn btn-dark" href="{% url 'inicio' %}">Volver al Inicio</a>
+                            <button type="submit" class="btn btn-success">Guardar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
 {% endblock %}

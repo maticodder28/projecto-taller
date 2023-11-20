@@ -3,36 +3,18 @@ from django.utils import timezone
 from tiendaApp.choices import *
 from django.contrib.auth.models import User
 
-
 # Create your models here.
-class TipoUsuario(models.Model):
-    nombre = models.CharField(max_length=50)
-    descripcion = models.CharField(max_length=100)
+class UserProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
+    cargo = models.CharField(max_length=100)  # Cargo
+    rut = models.CharField(max_length=12)  # Asegúrate de validar este campo correctamente
+
+    # Agrega cualquier otro campo que necesites
 
     def __str__(self):
-        return "{} {} ".format( self.nombre, self.descripcion)
-    
-    class Meta:
-        verbose_name = "TipoUsuario"
-        verbose_name_plural = "TipoUsuarios"
-        ordering = ["nombre", "descripcion"]
-
-class Usuarios(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    tipoUsuario = models.ForeignKey(TipoUsuario, on_delete=models.CASCADE)
-    estado = models.CharField(max_length=50, choices=EstadoUsuario, default='Activo')
-    nombre = models.CharField(max_length=50)
-    apellido = models.CharField(max_length=50)
-    rut = models.CharField(max_length=12)
-    telefono = models.CharField(max_length=12)
-
-    def __str__(self):
-        return "{} {} {} {} {} {} ".format( self.nombre, self.apellido, self.rut, self.telefono, self.tipoUsuario, self.estado)
-    
-    class Meta:
-        verbose_name = "Usuario"
-        verbose_name_plural = "Usuarios"
-        ordering = ["nombre", "apellido", "rut", "telefono" , "tipoUsuario", "estado"]
+        return self.user.username
 
 class Categoria(models.Model):
     nombre = models.CharField(max_length=100)
@@ -67,51 +49,36 @@ class Productos(models.Model):
 
 class Mesas(models.Model):
     numero = models.IntegerField()
-    estado = models.CharField(max_length=50, choices=EstadoMesa, default='Libre')
 
     def __str__(self):
-        return "{} {}".format( self.numero, self.estado)
+        return "{} {}".format( self.numero)
     
     class Meta:
         verbose_name = "Mesa"
         verbose_name_plural = "Mesas"
-        ordering = ["numero", "estado"]
+        ordering = ["numero"]
 
 class Comanda(models.Model):
-    fecha = models.DateField()
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
     productos = models.ManyToManyField(Productos, through='DetalleComanda')
-    estado = models.CharField(max_length=50, choices=EstadoPedido, default='Pendiente')
+    # Otros campos...
 
     def __str__(self):
-            # Inicializa una lista vacía para almacenar los nombres de los productos
-            productos_str = []
+        return f"Comanda {self.id} - {self.fecha_creacion.strftime('%Y-%m-%d %H:%M')}"
 
-            # Itera sobre todos los productos relacionados con esta comanda
-            for producto in self.productos.all():
-                # Añade el nombre del producto a la lista
-                productos_str.append(str(producto.nombre))
-
-            # Une los nombres de los productos en una sola cadena separada por comas
-            productos_juntos = ', '.join(productos_str)
-
-            # Devuelve una representación en cadena que incluye la fecha, el estado y los productos
-            return "Comanda del {} ({})".format(self.fecha, productos_juntos)
-    
-    class Meta:
-        verbose_name = "Comanda"
-        verbose_name_plural = "Comandas"
-        ordering = ["fecha"]
+    @property
+    def total(self):
+        return sum(item.subtotal for item in self.detallecomanda_set.all())
 
 class DetalleComanda(models.Model):
     comanda = models.ForeignKey(Comanda, on_delete=models.CASCADE)
     producto = models.ForeignKey(Productos, on_delete=models.CASCADE)
-    cantidad = models.IntegerField()
+    cantidad = models.IntegerField(default=1)
 
     def __str__(self):
-        return "{} {} {}".format( self.comanda, self.producto, self.cantidad)
-    
-    class Meta:
-        verbose_name = "DetalleComanda"
-        verbose_name_plural = "DetalleComandas"
-        ordering = ["comanda", "producto", "cantidad"]
+        return f"{self.producto.nombre} x {self.cantidad}"
+
+    @property
+    def subtotal(self):
+        return self.cantidad * self.producto.precio
 

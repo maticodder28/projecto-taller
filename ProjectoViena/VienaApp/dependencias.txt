@@ -1,0 +1,5 @@
+django == 4.2.4
+mysqlclient 
+pillow
+django-crispy-forms
+crispy-bootstrap5

@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from tiendaApp.forms import ProductoForm, RegistroUsuarioForm
-from tiendaApp.models import Productos, Categoria, Usuarios
+from tiendaApp.forms import ProductoForm, NewUserForm, DetalleComandaForm
+from tiendaApp.models import Productos, Categoria, Comanda, DetalleComanda
 from django.db.models import Q
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+from django.contrib import messages
+import json
+from django.http import JsonResponse
 
 # Create your views here.
 def base(request):
@@ -43,7 +43,7 @@ def productos_por_categoria(request, categoria_id):
     return render(request, 'productos_por_categoria.html', {'productos': productos, 'categoria': categoria})
 
 def detalles_categoria(request, categoria_id):
-    productos = Producto.objects.filter(categoria_id=categoria_id)
+    productos = Productos.objects.filter(categoria_id=categoria_id)
     return render(request, 'detalles_categoria.html', {'productos': productos})
 
 def producto_detalle(request, producto_id):
@@ -84,33 +84,38 @@ def eliminar_producto(request, producto_id):
     # Renderiza una página de confirmación de eliminación (puedes crearla si lo deseas)
     return render(request, 'confirmar_eliminacion.html', {'producto': producto})
 
-@staff_member_required
-def registro_usuario(request):
-    if request.method == 'POST':
-        user_form = UserCreationForm(request.POST)
-        profile_form = RegistroUsuarioForm(request.POST)
-        if user_form.is_valid() and profile_form.is_valid():
-            user = user_form.save()
-            profile = profile_form.save(commit=False)
-            profile.user = user
-            profile.save()
-            return redirect('inicio')  # Redirige a donde necesites
-    else:
-        user_form = UserCreationForm()
-        profile_form = RegistroUsuarioForm()
-    return render(request, 'registro_usuario.html', {'user_form': user_form, 'profile_form': profile_form})
-
-def iniciar_sesion(request):
-    if request.method == 'POST':
-        form = AuthenticationForm(data=request.POST)
+def register_request(request):
+    if request.method == "POST":
+        form = NewUserForm(request.POST)
         if form.is_valid():
-            user = form.get_user()
+            user = form.save()
             login(request, user)
-            return redirect('inicio')
-    else:
-        form = AuthenticationForm()
-    return render(request, 'login.html', {'form': form})
+            messages.success(request, "Registro exitoso." )
+            return redirect("inicio")  # Redirecciona a la página de inicio
+        messages.error(request, "Registro no exitoso. Información inválida.")
+    form = NewUserForm()
+    return render(request=request, template_name="registration/registro.html", context={"register_form":form})
 
-def cerrar_sesion(request):
-    logout(request)  # Esta línea efectivamente cierra la sesión del usuario
-    return redirect('login')  # Redirige al usuario a la página de inicio de sesión
+def crear_comanda(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        productos_data = data.get('productos')
+
+        comanda = Comanda.objects.create()
+
+        for item in productos_data:
+            producto_id = item['producto_id']
+            cantidad = item['cantidad']
+
+            producto = Productos.objects.get(id=producto_id)
+            DetalleComanda.objects.create(comanda=comanda, producto=producto, cantidad=cantidad)
+
+        return JsonResponse({'success': True})
+
+    productos = Productos.objects.all()
+    return render(request, 'crear_comanda.html', {'productos': productos})
+
+
+def vista_cocina(request):
+    comandas = Comanda.objects.all().order_by('fecha_creacion')
+    return render(request, 'vista_cocina.html', {'comandas': comandas})
