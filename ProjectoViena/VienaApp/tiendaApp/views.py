@@ -112,8 +112,15 @@ def crear_comanda(request):
 
         return JsonResponse({'success': True})
 
-    productos = Productos.objects.all()
-    return render(request, 'crear_comanda.html', {'productos': productos})
+    # Asumiendo que tus productos tienen un campo 'categoria'
+    # y las categorías son 'Comestible' y 'Bebestible'.
+    comestibles = Productos.objects.filter(categoria_id=2)  # ID de la categoría Comestible
+    bebestibles = Productos.objects.filter(categoria_id=1)  # ID de la categoría Bebestible)
+
+    return render(request, 'crear_comanda.html', {
+        'comestibles': comestibles,
+        'bebestibles': bebestibles,
+    })
 
 
 def vista_cocina(request):

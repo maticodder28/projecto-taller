@@ -88,7 +88,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'viena',
-        'USER': 'useradmin',
+        'USER': 'user_admin',
         'PASSWORD': 'Admin123.',
         'HOST': 'localhost',
         'PORT': '3306',
