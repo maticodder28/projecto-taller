@@ -21,6 +21,7 @@ from tiendaApp import views as vistas
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', vistas.base, name='base'),
@@ -36,7 +37,8 @@ urlpatterns = [
     path("registro/", vistas.register_request, name="registro"),
     path("comandas/", vistas.crear_comanda, name="crear_comanda"),
     path('cocina/', vistas.vista_cocina, name='vista_cocina'),
-
+    path('informe-ventas/', vistas.generar_informe_ventas, name='generar_informe_ventas'),
+    path('informe-producto/', vistas.informe_producto, name='informe_producto'),
 ]
 
 if settings.DEBUG:
