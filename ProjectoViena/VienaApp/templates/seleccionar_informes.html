@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<div class="container mt-4">
+    <h2 class="text-center">Informes Disponibles</h2>
+    <div class="list-group mt-4">
+
+        <!-- Informe de Ventas -->
+        <a href="{% url 'generar_informe_ventas' %}" class="list-group-item list-group-item-action">
+            Informe de Ventas
+        </a>
+
+        <!-- Informe del Producto Más Vendido -->
+        <a href="{% url 'informe_producto' %}" class="list-group-item list-group-item-action">
+            Informe del Producto Más Vendido
+        </a>
+
+        <!-- Otros informes que desees incluir -->
+        <!-- ... -->
+
+    </div>
+</div>
+
+{% endblock %}

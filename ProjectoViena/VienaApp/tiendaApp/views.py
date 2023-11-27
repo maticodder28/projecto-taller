@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
 from tiendaApp.forms import ProductoForm, NewUserForm, DetalleComandaForm
 from tiendaApp.models import Productos, Categoria, Comanda, DetalleComanda
 from django.db.models import Q
@@ -12,14 +13,21 @@ from django.http import HttpResponse
 from django.utils.timezone import make_naive, get_default_timezone, is_naive
 from collections import Counter
 from django.conf import settings
+from django.db import transaction
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from tiendaApp.serializers import ComandaSerializer
+from rest_framework.decorators import api_view
 
 # Create your views here.
 def base(request):
     return render(request, 'base.html')
 
-def inicio(request):
+def modificar(request):
     categorias = Categoria.objects.all()  # Obtiene todas las categorías
-    return render(request, 'inicio.html', {'categorias': categorias})
+    return render(request, 'modificar.html', {'categorias': categorias})
 
 
 def ingresoproducto(request):
@@ -103,32 +111,18 @@ def register_request(request):
     return render(request=request, template_name="registration/registro.html", context={"register_form":form})
 
 def crear_comanda(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        productos_data = data.get('productos')
-
-        comanda = Comanda.objects.create()
-
-        for item in productos_data:
-            producto_id = item['producto_id']
-            cantidad = item['cantidad']
-
-            producto = Productos.objects.get(id=producto_id)
-            DetalleComanda.objects.create(comanda=comanda, producto=producto, cantidad=cantidad)
-
-        return JsonResponse({'success': True})
-
-    comestibles = Productos.objects.filter(categoria_id=2)  # ID de la categoría Comestible
-    bebestibles = Productos.objects.filter(categoria_id=1)  # ID de la categoría Bebestible)
-
+    comestibles = Productos.objects.filter(categoria=1)  # ID para Comestibles
+    bebestibles = Productos.objects.filter(categoria=2)  # ID para Bebestibles
+    bebidasalcoholicas = Productos.objects.filter(categoria=3)  # ID para Bebidas Alcohólicas
+    
     return render(request, 'crear_comanda.html', {
         'comestibles': comestibles,
         'bebestibles': bebestibles,
+        'bebidasalcoholicas': bebidasalcoholicas
     })
 
-
 def vista_cocina(request):
-    comandas = Comanda.objects.all().order_by('fecha_creacion')
+    comandas = Comanda.objects.prefetch_related('detallecomanda_set').all().order_by('fecha_creacion')
     return render(request, 'vista_cocina.html', {'comandas': comandas})
 
 def generar_informe_ventas(request):
@@ -230,4 +224,46 @@ def informe_producto(request):
         return response
 
     # Si no es un POST, renderizar el formulario
-    return render(request, 'informe-producto.html')
+    return render(request, 'informe_producto.html')
+
+def seleccionar_informes(request):
+    return render(request, 'seleccionar_informes.html')
+
+def confirmar_comanda(request, comanda_id):
+    comanda = get_object_or_404(Comanda, id=comanda_id)
+    detalles_comanda = comanda.detallecomanda_set.all()  # Asumiendo que tienes un related_name configurado
+
+    total_comanda = sum(detalle.subtotal for detalle in detalles_comanda)
+
+    return render(request, 'confirmar_comanda.html', {
+        'comanda': comanda,
+        'detalles_comanda': detalles_comanda,
+        'total_comanda': total_comanda
+    })
+
+
+def comanda_exitosa(request, comanda_id):
+    comanda = get_object_or_404(Comanda, id=comanda_id)
+    detalles_comanda = comanda.detallecomanda_set.all()
+    total_comanda = sum(detalle.subtotal for detalle in detalles_comanda)
+
+    return render(request, 'comanda_exitosa.html', {
+        'comanda': comanda,
+        'detalles_comanda': detalles_comanda,
+        'total_comanda': total_comanda
+    })
+
+class CrearComandaAPI(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = ComandaSerializer(data=request.data)
+        if serializer.is_valid():
+            comanda = serializer.save()
+            return Response({'comanda_id': comanda.id}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+def confirmar_comanda_api(request, comanda_id):
+    comanda = get_object_or_404(Comanda, id=comanda_id)
+    comanda.confirmada = True  # Asumiendo que tienes un campo así
+    comanda.save()
+    return Response({'success': True})

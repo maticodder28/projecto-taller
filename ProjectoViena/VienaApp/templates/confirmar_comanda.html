@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<div class="container mt-4">
+    <h2>Confirmar Comanda</h2>
+    <div id="comandaDetails">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for detalle in detalles_comanda %}
+                <tr>
+                    <td>{{ detalle.producto.nombre }}</td>
+                    <td>{{ detalle.cantidad }}</td>
+                    <td>{{ detalle.producto.precio }}</td>
+                    <td>{{ detalle.subtotal }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                    <td colspan="3" class="text-right"><strong>Total</strong></td>
+                    <td><strong>${{ total_comanda }}</strong></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="row">
+            <div class="col text-right">
+                <!-- Botón para confirmar la comanda via AJAX -->
+                <button type="button" id="confirmarComandaBtn" class="btn btn-success">Confirmar Comanda</button>
+            </div>
+            <div class="col">
+                <!-- Botón para regresar a modificar la comanda -->
+                <a href="{% url 'crear_comanda' %}" class="btn btn-warning">Modificar Comanda</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('confirmarComandaBtn').addEventListener('click', function() {
+        fetch('/api/confirmar_comanda/' + comandaId, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                window.location.href = '/comanda_exitosa/';
+            } else {
+                console.error('Error al confirmar la comanda');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+</script>
+
+{% endblock %}

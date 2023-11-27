@@ -64,3 +64,4 @@ class NewUserForm(UserCreationForm):
                                        rut=self.cleaned_data["rut"])
             user_profile.save()
         return user
+    

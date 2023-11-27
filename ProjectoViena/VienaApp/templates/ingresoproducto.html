@@ -8,7 +8,7 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-header">
-                    <h4 class="card-title">Agregar Producto</h4>
+                    <h4 class="card-title text-center">Agregar Producto</h4>
                 </div>
                 <div class="card-body">
                     <form method="POST" enctype="multipart/form-data">
@@ -16,7 +16,7 @@
                         {{ form.non_field_errors }}
                         {{ form|crispy }}
                         <div class="text-center mt-3">
-                            <a class="btn btn-dark" href="{% url 'inicio' %}">Volver al Inicio</a>
+                            <a class="btn btn-dark" href="{% url 'base' %}">Volver al Inicio</a>
                             <button type="submit" class="btn btn-success">Guardar</button>
                         </div>
                     </form>

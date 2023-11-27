@@ -5,45 +5,82 @@
     <h2>Crear Comanda</h2>
     <form id="comandaForm" method="post">
         {% csrf_token %}
-
-        <h3>Comestibles</h3>
-        <div class="row mt-3">
-            {% for producto in comestibles %}
+        <div class="mt-4">
+            <h3>Comestibles</h3>
+            <div class="row mt-3">
+                {% for producto in comestibles %}
                 <div class="col-md-4 mb-3">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
-                                    <h5 class="card-title">{{ producto.nombre }}</h5>
+                                    <h5 class="card-title" id="nombre_producto_{{ producto.id }}">{{ producto.nombre }}
+                                    </h5>
+                                    <span id="precio_producto_{{ producto.id }}" style="display: none;">{{
+                                        producto.precio }}</span>
                                 </div>
                                 <div class="col">
-                                    <input type="number" min="0" class="form-control" name="cantidad_{{ producto.id }}" data-producto-id="{{ producto.id }}" placeholder="Cantidad">
+                                    <input type="number" min="0" class="form-control" name="cantidad_{{ producto.id }}"
+                                        data-producto-id="{{ producto.id }}" placeholder="Cantidad">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
         </div>
 
-        <h3>Bebestibles</h3>
-        <div class="row mt-3">
-            {% for producto in bebestibles %}
+        <div class="mt-4">
+            <h3>Bebestibles</h3>
+            <div class="row mt-3">
+                {% for producto in bebestibles %}
                 <div class="col-md-4 mb-3">
                     <div class="card">
                         <div class="card-body">
                             <div class="row">
                                 <div class="col">
-                                    <h5 class="card-title">{{ producto.nombre }}</h5>
+                                    <h5 class="card-title" id="nombre_producto_{{ producto.id }}">{{ producto.nombre }}
+                                    </h5>
+                                    <span id="precio_producto_{{ producto.id }}" style="display: none;">{{
+                                        producto.precio }}</span>
                                 </div>
                                 <div class="col">
-                                    <input type="number" min="0" class="form-control" name="cantidad_{{ producto.id }}" data-producto-id="{{ producto.id }}" placeholder="Cantidad">
+                                    <input type="number" min="0" class="form-control" name="cantidad_{{ producto.id }}"
+                                        data-producto-id="{{ producto.id }}" placeholder="Cantidad">
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <h3>Bebidas Alcoholicas</h3>
+            <div class="row mt-3">
+                {% for producto in bebidasalcoholicas %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col">
+                                    <h5 class="card-title" id="nombre_producto_{{ producto.id }}">{{ producto.nombre }}
+                                    </h5>
+                                    <span id="precio_producto_{{ producto.id }}" style="display: none;">{{
+                                        producto.precio }}</span>
+                                </div>
+                                <div class="col">
+                                    <input type="number" min="0" class="form-control" name="cantidad_{{ producto.id }}"
+                                        data-producto-id="{{ producto.id }}" placeholder="Cantidad">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
         <button type="submit" class="btn btn-primary mt-3">Crear Comanda</button>
@@ -51,30 +88,43 @@
 </div>
 
 <script>
-    document.getElementById('comandaForm').onsubmit = function(event) {
+    document.getElementById('comandaForm').addEventListener('submit', function(event) {
         event.preventDefault();
     
-        let productos = [];
+        let detalles = [];
         document.querySelectorAll('[data-producto-id]').forEach(input => {
-            let producto_id = input.getAttribute('data-producto-id');
-            let cantidad = input.value;
+            let producto_id = parseInt(input.getAttribute('data-producto-id'));
+            let cantidad = parseInt(input.value);
             if (cantidad > 0) {
-                productos.push({ producto_id: producto_id, cantidad: cantidad });
+                detalles.push({ producto_id: producto_id, cantidad: cantidad });
             }
         });
     
-        fetch("{% url 'crear_comanda' %}", {
+        fetch("{% url 'api_crear_comanda' %}", {
             method: 'POST',
-            body: JSON.stringify({ productos: productos }),
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',
                 'Content-Type': 'application/json'
             },
+            body: JSON.stringify({ detallecomanda_set: detalles })
         })
         .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
-    };
+        .then(data => {
+            if (data.comanda_id) {
+                // Redirige a la página de confirmación de la comanda
+                window.location.href = `/confirmar_comanda/${data.comanda_id}/`;
+            } else {
+                // Maneja los errores
+                console.error('Error en la creación de la comanda:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
 </script>
+
+
+
 
 {% endblock %}

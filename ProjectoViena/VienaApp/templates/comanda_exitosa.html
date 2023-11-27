@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<div class="container mt-4">
+    <h2>Comanda Exitosa</h2>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles_comanda %}
+            <tr>
+                <td>{{ detalle.producto.nombre }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>${{ detalle.precio }}</td>
+                <td>${{ detalle.subtotal }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3" class="text-right"><strong>Total</strong></td>
+                <td><strong>${{ total_comanda }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    <a href="{% url 'crear_comanda' %}" class="btn btn-primary">Crear Nueva Comanda</a>
+</div>
+{% endblock %}

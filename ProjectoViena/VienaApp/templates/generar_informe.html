@@ -2,10 +2,10 @@
 {% block contenido %}
 
 <div class="container mt-4">
-    <h2>Generar Informe de Ventas</h2>
+    <h2 class="text-center">Generar Informe de Ventas</h2>
     <form action="{% url 'generar_informe_ventas' %}" method="post">
         {% csrf_token %}
-        <div class="row">
+        <div class="row mt-5">
             <div class="col-md-6">
                 <label for="fecha_inicio">Fecha de Inicio</label>
                 <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-control">

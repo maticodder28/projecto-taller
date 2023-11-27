@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+<div class="row text-center">
+    {% for categoria in categorias %}
+    <div class="col-md-6 col-sm-4 col-12 mt-5">
+        <div class="card">
+            <h3 class="card-title text-center mt-3">{{ categoria.nombre }}</h5>
+            <div class="card-body">
+                <!-- Asegúrate de que la imagen exista en tus modelos -->
+                {% if categoria.imagen %}
+                <img class="card-img-top w-25 h-auto" src="{{ categoria.imagen.url }}" alt="Imagen de {{ categoria.nombre }}">
+                {% endif %}
+                <p class="card-text text-center mt-2">
+                    <!-- Ajusta el enlace a los detalles de la categoría -->
+                    <a href="{% url 'productos_por_categoria' categoria.id %}" class="btn btn-secondary">Ver Detalles</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

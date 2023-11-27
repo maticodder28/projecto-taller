@@ -25,7 +25,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', vistas.base, name='base'),
-    path('inicio/', vistas.inicio, name='inicio'),
+    path('modificar/', vistas.modificar, name='modificar'),
     path('agregarproducto/', vistas.ingresoproducto, name='ingresoproducto'),
     path('listaproductos/', vistas.listaproductos, name='listaproductos'),
     path('categoria/<int:categoria_id>/', vistas.productos_por_categoria, name='productos_por_categoria'),
@@ -39,6 +39,11 @@ urlpatterns = [
     path('cocina/', vistas.vista_cocina, name='vista_cocina'),
     path('informe-ventas/', vistas.generar_informe_ventas, name='generar_informe_ventas'),
     path('informe-producto/', vistas.informe_producto, name='informe_producto'),
+    path('informes/seleccionar/', vistas.seleccionar_informes, name='seleccionar_informes'),
+    path('confirmar_comanda/<int:comanda_id>/', vistas.confirmar_comanda, name='confirmar_comanda'),
+    path('comandas/exitosa/<int:comanda_id>/', vistas.comanda_exitosa, name='comanda_exitosa'),
+    path('api/crear_comanda/', vistas.CrearComandaAPI.as_view(), name='api_crear_comanda'),
+    path('api/confirmar_comanda/<int:comanda_id>/', vistas.confirmar_comanda_api, name='api_confirmar_comanda'),
 ]
 
 if settings.DEBUG:
