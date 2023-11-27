@@ -44,6 +44,8 @@ urlpatterns = [
     path('comandas/exitosa/<int:comanda_id>/', vistas.comanda_exitosa, name='comanda_exitosa'),
     path('api/crear_comanda/', vistas.CrearComandaAPI.as_view(), name='api_crear_comanda'),
     path('api/confirmar_comanda/<int:comanda_id>/', vistas.confirmar_comanda_api, name='api_confirmar_comanda'),
+    path('api-token-auth/', vistas.login, name='api_token_auth'),
+
 ]
 
 if settings.DEBUG:

@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-g(k3dn+uz6amnm04okzw1@z%7h)jouzmou$cy5(g!&mh)o)o91
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['tunombredeusuario.pythonanywhere.com']
 
 
 # Application definition
@@ -48,7 +48,7 @@ INSTALLED_APPS = [
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK="bootstrap5"
-LOGIN_REDIRECT_URL = 'inicio'
+LOGIN_REDIRECT_URL = 'base'
 LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 MIDDLEWARE = [
@@ -139,6 +139,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [STATIC_DIR]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

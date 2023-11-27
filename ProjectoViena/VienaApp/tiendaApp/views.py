@@ -20,6 +20,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from tiendaApp.serializers import ComandaSerializer
 from rest_framework.decorators import api_view
+from rest_framework_jwt.settings import api_settings
+from django.contrib.auth import authenticate
 
 # Create your views here.
 def base(request):
@@ -267,3 +269,18 @@ def confirmar_comanda_api(request, comanda_id):
     comanda.confirmada = True  # Asumiendo que tienes un campo así
     comanda.save()
     return Response({'success': True})
+
+@api_view(['POST'])
+def login(request):
+    username = request.data.get("username")
+    password = request.data.get("password")
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+        return Response({'token': token})
+    else:
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
