@@ -124,11 +124,15 @@ def register_request(request):
         if form.is_valid():
             user = form.save()
             login(request, user)
-            messages.success(request, "Registro exitoso." )
-            return redirect("inicio")  # Redirecciona a la página de inicio
-        messages.error(request, "Registro no exitoso. Información inválida.")
-    form = NewUserForm()
-    return render(request=request, template_name="registration/registro.html", context={"register_form":form})
+            messages.success(request, "Registro exitoso.")
+            return redirect("inicio")
+        else:
+            # Si el formulario no es válido, se renderiza de nuevo con los errores
+            # Los mensajes de error se manejan por campo en el formulario y no aquí
+            pass
+    else:
+        form = NewUserForm()
+    return render(request, "registration/registro.html", {"register_form": form})
 
 @login_required
 def crear_comanda(request):

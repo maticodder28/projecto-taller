@@ -60,23 +60,24 @@ class NewUserForm(UserCreationForm):
             raise forms.ValidationError("Este correo electrónico ya está en uso.")
         return email
 
-    def clean_rut(self):
-        rut = self.cleaned_data['rut']
-        rut = rut.replace('.', '').replace('-', '')
-        cuerpo, dv = rut[:-1], rut[-1].upper()
+def clean_rut(self):
+    rut = self.cleaned_data['rut']
+    rut = rut.replace('.', '').replace('-', '')
+    cuerpo, dv = rut[:-1], rut[-1].upper()
 
-        # Validar que el cuerpo tenga 7 o más dígitos y que el DV sea un dígito o 'K'
-        if not cuerpo.isdigit() or len(cuerpo) < 7 or (dv != 'K' and not dv.isdigit()):
-            raise forms.ValidationError("RUT inválido.")
+    # Validar que el cuerpo tenga 7 o más dígitos y que el DV sea un dígito o 'K'
+    if not cuerpo.isdigit() or len(cuerpo) < 7 or (dv != 'K' and not dv.isdigit()):
+        raise forms.ValidationError("RUT inválido.")
 
-        # Calcular dígito verificador
-        suma = sum([int(digit) * int('32765432'[i % 8]) for i, digit in enumerate(reversed(cuerpo))])
-        dv_esperado = '0' if suma % 11 == 0 else 'K' if suma % 11 == 1 else str(11 - suma % 11)
+    # Calcular dígito verificador
+    serie = [2, 3, 4, 5, 6, 7, 2, 3]
+    suma = sum([int(digit) * serie[i % 8] for i, digit in enumerate(reversed(cuerpo))])
+    dv_esperado = '0' if suma % 11 == 0 else 'K' if suma % 11 == 1 else str(11 - (suma % 11))
 
-        if dv != dv_esperado:
-            raise forms.ValidationError("RUT inválido. Dígito verificador no coincide.")
+    if dv != dv_esperado:
+        raise forms.ValidationError("RUT inválido. Dígito verificador no coincide.")
 
-        return rut
+    return rut
 
     def save(self, commit=True):
         user = super(NewUserForm, self).save(commit=False)

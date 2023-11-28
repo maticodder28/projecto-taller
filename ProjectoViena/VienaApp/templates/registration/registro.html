@@ -3,6 +3,17 @@
 
 {% block contenido %}
 <div class="container mt-5">
+    <!-- Mostrar mensajes de éxito/error -->
+    {% if messages %}
+    <div>
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    <!-- Resto del contenido -->
     <div class="row">
         <div class="col-md-6 offset-md-3">
             <div class="card">
