@@ -2,6 +2,7 @@ from django import forms
 from tiendaApp.models import Productos, Mesas, UserProfile, Comanda, DetalleComanda, Categoria
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+import re
 
 
 class ProductoForm(forms.ModelForm):
@@ -52,6 +53,30 @@ class NewUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ("username", "email", "password1", "password2", "nombre", "apellido", "cargo", "rut")
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError("Este correo electrónico ya está en uso.")
+        return email
+
+    def clean_rut(self):
+        rut = self.cleaned_data['rut']
+        rut = rut.replace('.', '').replace('-', '')
+        cuerpo, dv = rut[:-1], rut[-1].upper()
+
+        # Validar que el cuerpo tenga 7 o más dígitos y que el DV sea un dígito o 'K'
+        if not cuerpo.isdigit() or len(cuerpo) < 7 or (dv != 'K' and not dv.isdigit()):
+            raise forms.ValidationError("RUT inválido.")
+
+        # Calcular dígito verificador
+        suma = sum([int(digit) * int('32765432'[i % 8]) for i, digit in enumerate(reversed(cuerpo))])
+        dv_esperado = '0' if suma % 11 == 0 else 'K' if suma % 11 == 1 else str(11 - suma % 11)
+
+        if dv != dv_esperado:
+            raise forms.ValidationError("RUT inválido. Dígito verificador no coincide.")
+
+        return rut
 
     def save(self, commit=True):
         user = super(NewUserForm, self).save(commit=False)

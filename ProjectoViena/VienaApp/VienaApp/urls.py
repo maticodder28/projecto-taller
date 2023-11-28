@@ -25,6 +25,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', vistas.base, name='base'),
+    path('inicio/', vistas.inicio, name='inicio'),
     path('modificar/', vistas.modificar, name='modificar'),
     path('agregarproducto/', vistas.ingresoproducto, name='ingresoproducto'),
     path('listaproductos/', vistas.listaproductos, name='listaproductos'),

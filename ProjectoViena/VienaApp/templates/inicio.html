@@ -1,23 +1,10 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block contenido %}
-<div class="row text-center">
-    {% for categoria in categorias %}
-    <div class="col-md-6 col-sm-4 col-12 mt-5">
-        <div class="card">
-            <h3 class="card-title text-center">{{ categoria.nombre }}</h5>
-            <div class="card-body">
-                <!-- Asegúrate de que la imagen exista en tus modelos -->
-                {% if categoria.imagen %}
-                <img class="card-img-top" src="{{ categoria.imagen.url }}" alt="Imagen de {{ categoria.nombre }}">
-                {% endif %}
-                <p class="card-text text-center">
-                    <!-- Ajusta el enlace a los detalles de la categoría -->
-                    <a href="{% url 'productos_por_categoria' categoria.id %}" class="btn btn-secondary">Ver Detalles</a>
-                </p>
-            </div>
-        </div>
-    </div>
-    {% endfor %}
+{% load static %}
+
+<div class="bg-black min-vh-100 d-flex justify-content-center align-items-center">
+  <img src="{% static 'img/WhatsApp Image 2023-11-26 at 21.17.16.jpeg' %}" alt="Viena Tradición Coquimbana" class="mw-100">
 </div>
+
 {% endblock %}

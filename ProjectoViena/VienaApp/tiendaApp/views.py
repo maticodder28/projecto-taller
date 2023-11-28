@@ -22,16 +22,26 @@ from tiendaApp.serializers import ComandaSerializer
 from rest_framework.decorators import api_view
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import user_passes_test, login_required
 
 # Create your views here.
 def base(request):
     return render(request, 'base.html')
 
+def es_encargado(user):
+    return user.is_superuser or (hasattr(user, 'userprofile') and user.userprofile.cargo == 'Encargado')
+
+def inicio(request):
+    return render(request, 'inicio.html')
+
+@login_required
+@user_passes_test(es_encargado)
 def modificar(request):
     categorias = Categoria.objects.all()  # Obtiene todas las categorías
     return render(request, 'modificar.html', {'categorias': categorias})
 
-
+@login_required
+@user_passes_test(es_encargado)
 def ingresoproducto(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
@@ -49,7 +59,7 @@ def listaproductos(request):
 
     if query:
         # Filtra los productos que contienen la consulta en el nombre o la descripción
-        productos = productos.filter(Q(nombre__icontains=query) | Q(descripcion__icontains=query))
+        productos = productos.filter(Q(nombre__icontains=query))
 
     return render(request, 'listaproductos.html', {'productos': productos, 'query': query})
 
@@ -62,6 +72,8 @@ def detalles_categoria(request, categoria_id):
     productos = Productos.objects.filter(categoria_id=categoria_id)
     return render(request, 'detalles_categoria.html', {'productos': productos})
 
+@login_required
+@user_passes_test(es_encargado)
 def producto_detalle(request, producto_id):
     producto = get_object_or_404(Productos, id=producto_id)
 
@@ -69,13 +81,15 @@ def producto_detalle(request, producto_id):
         form = ProductoForm(request.POST, instance=producto)
         if form.is_valid():
             form.save()
-            # Redirigir a donde sea necesario después de actualizar
             return redirect('listaproductos')
     else:
         form = ProductoForm(instance=producto)
 
     return render(request, 'producto_detalle.html', {'form': form, 'producto': producto})
     
+
+@login_required
+@user_passes_test(es_encargado)    
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Productos, id=producto_id)
     if request.method == 'POST':
@@ -87,6 +101,8 @@ def editar_producto(request, producto_id):
         form = ProductoForm(instance=producto)
     return render(request, 'editar_producto.html', {'form': form})
 
+@login_required
+@user_passes_test(es_encargado)
 def eliminar_producto(request, producto_id):
     # Obtiene el objeto del producto o muestra un error 404 si no existe
     producto = get_object_or_404(Productos, id=producto_id)
@@ -100,6 +116,8 @@ def eliminar_producto(request, producto_id):
     # Renderiza una página de confirmación de eliminación (puedes crearla si lo deseas)
     return render(request, 'confirmar_eliminacion.html', {'producto': producto})
 
+@login_required
+@user_passes_test(es_encargado)
 def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
@@ -112,6 +130,7 @@ def register_request(request):
     form = NewUserForm()
     return render(request=request, template_name="registration/registro.html", context={"register_form":form})
 
+@login_required
 def crear_comanda(request):
     comestibles = Productos.objects.filter(categoria=1)  # ID para Comestibles
     bebestibles = Productos.objects.filter(categoria=2)  # ID para Bebestibles
@@ -127,6 +146,8 @@ def vista_cocina(request):
     comandas = Comanda.objects.prefetch_related('detallecomanda_set').all().order_by('fecha_creacion')
     return render(request, 'vista_cocina.html', {'comandas': comandas})
 
+@login_required
+@user_passes_test(es_encargado)
 def generar_informe_ventas(request):
     if request.method == 'POST':
         fecha_inicio = request.POST.get('fecha_inicio')
@@ -167,6 +188,8 @@ def generar_informe_ventas(request):
     # Si no es un POST, renderizar el formulario
     return render(request, 'generar_informe.html')
 
+@login_required
+@user_passes_test(es_encargado)
 def informe_producto(request):
     if request.method == 'POST':
         fecha_inicio = request.POST.get('fecha_inicio')
@@ -228,6 +251,8 @@ def informe_producto(request):
     # Si no es un POST, renderizar el formulario
     return render(request, 'informe_producto.html')
 
+@login_required
+@user_passes_test(es_encargado)
 def seleccionar_informes(request):
     return render(request, 'seleccionar_informes.html')
 
@@ -269,18 +294,3 @@ def confirmar_comanda_api(request, comanda_id):
     comanda.confirmada = True  # Asumiendo que tienes un campo así
     comanda.save()
     return Response({'success': True})
-
-@api_view(['POST'])
-def login(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-
-        payload = jwt_payload_handler(user)
-        token = jwt_encode_handler(payload)
-        return Response({'token': token})
-    else:
-        return Response(status=status.HTTP_401_UNAUTHORIZED)

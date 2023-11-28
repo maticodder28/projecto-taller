@@ -5,10 +5,10 @@
     <div class="col">
         <div class="row">
             <div class="col-9">
-                <div class="h2">Listado de Productos General</div>
+                <div class="h2 text-center mt-3">Listado de Productos General</div>
                 <!-- Formulario de búsqueda -->
                 <form method="GET" class="mb-4">
-                    <div class="input-group">
+                    <div class="input-group mt-3">
                         <input type="text" name="q" class="form-control" placeholder="Buscar productos..."
                             value="{{ query }}">
                         <div class="input-group-append">
@@ -18,7 +18,7 @@
                 </form>
 
             </div>
-            <div class="col-3">
+            <div class="col-3 mt-3">
                 <a class="btn btn-success" href="{% url 'ingresoproducto' %}">Agregar Producto</a>
             </div>
         </div>
