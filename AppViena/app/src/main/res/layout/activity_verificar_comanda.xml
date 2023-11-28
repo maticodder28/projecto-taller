@@ -1,0 +1,37 @@
+<!-- activity_verificar_comanda.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- ListView para mostrar los productos de la comanda -->
+    <ListView
+        android:id="@+id/lvVerificarProductos"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp"/>
+
+    <!-- TextView para mostrar el total de la comanda -->
+    <TextView
+        android:id="@+id/tvTotalVerificar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total: "
+        android:textAppearance="?attr/textAppearanceListItem" />
+
+    <!-- Botones para confirmar o modificar la comanda -->
+    <Button
+        android:id="@+id/btnConfirmarComanda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Confirmar Comanda" />
+
+    <Button
+        android:id="@+id/btnModificarComanda"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Modificar Comanda" />
+</LinearLayout>
