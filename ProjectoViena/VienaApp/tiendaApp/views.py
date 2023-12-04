@@ -1,30 +1,25 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.urls import reverse
-from tiendaApp.forms import ProductoForm, NewUserForm, DetalleComandaForm
-from tiendaApp.models import Productos, Categoria, Comanda, DetalleComanda
+from tiendaApp.forms import ProductoForm, NewUserForm, CategoriaForm, MesaForm, DetalleComandaForm, UserUpdateForm, UserProfileUpdateForm
+from tiendaApp.models import Productos, Categoria, Comanda, DetalleComanda, UserProfile, User
 from django.db.models import Q
 from django.contrib.auth import login
 from django.contrib import messages
-import json
-from django.http import JsonResponse
 from openpyxl import Workbook
 import datetime
 from django.http import HttpResponse
 from django.utils.timezone import make_naive, get_default_timezone, is_naive
 from collections import Counter
 from django.conf import settings
-from django.db import transaction
-from django.views.decorators.csrf import csrf_exempt
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from tiendaApp.serializers import ComandaSerializer
 from rest_framework.decorators import api_view
 from rest_framework_jwt.settings import api_settings
-from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import user_passes_test, login_required
 
 # Create your views here.
+
 def base(request):
     return render(request, 'base.html')
 
@@ -122,17 +117,30 @@ def register_request(request):
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
+            # Crear el usuario
+            user = form.save(commit=False)
+            user.save()
+            
+            # Crear el perfil de usuario asociado
+            UserProfile.objects.create(
+                user=user,
+                nombre=form.cleaned_data['nombre'],
+                apellido=form.cleaned_data['apellido'],
+                cargo=form.cleaned_data['cargo'],
+                rut=form.cleaned_data['rut']
+            )
+
+            # Mensajes y redirección
             messages.success(request, "Registro exitoso.")
             return redirect("inicio")
         else:
-            # Si el formulario no es válido, se renderiza de nuevo con los errores
-            # Los mensajes de error se manejan por campo en el formulario y no aquí
-            pass
+            # Manejar el caso en que el formulario no es válido
+            messages.error(request, "Por favor, corrija los errores")
     else:
         form = NewUserForm()
+
     return render(request, "registration/registro.html", {"register_form": form})
+
 
 @login_required
 def crear_comanda(request):
@@ -262,7 +270,7 @@ def seleccionar_informes(request):
 
 def confirmar_comanda(request, comanda_id):
     comanda = get_object_or_404(Comanda, id=comanda_id)
-    detalles_comanda = comanda.detallecomanda_set.all()  # Asumiendo que tienes un related_name configurado
+    detalles_comanda = comanda.detallecomanda_set.all()  # Obtener todos los detalles de la comanda
 
     total_comanda = sum(detalle.subtotal for detalle in detalles_comanda)
 
@@ -281,7 +289,7 @@ def comanda_exitosa(request, comanda_id):
     return render(request, 'comanda_exitosa.html', {
         'comanda': comanda,
         'detalles_comanda': detalles_comanda,
-        'total_comanda': total_comanda
+        'total_comanda': total_comanda 
     })
 
 class CrearComandaAPI(APIView):
@@ -295,6 +303,133 @@ class CrearComandaAPI(APIView):
 @api_view(['POST'])
 def confirmar_comanda_api(request, comanda_id):
     comanda = get_object_or_404(Comanda, id=comanda_id)
-    comanda.confirmada = True  # Asumiendo que tienes un campo así
+    comanda.confirmada = True # Marcar la comanda como confirmada
     comanda.save()
     return Response({'success': True})
+
+@login_required
+@user_passes_test(es_encargado)
+def lista_trabajadores(request):
+    trabajadores = UserProfile.objects.all()
+    return render(request, 'lista_trabajadores.html', {'trabajadores': trabajadores})
+
+@login_required
+@user_passes_test(es_encargado)
+def crear_categoria(request):
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('modificar')
+    else:
+        form = CategoriaForm()
+    return render(request, 'crear_categoria.html', {'form': form})
+
+def lista_categoria(request):
+    query = request.GET.get('q')
+    categorias = Categoria.objects.all()  # Cambia el nombre de la variable a 'categorias'
+
+    if query:
+        categorias = categorias.filter(Q(nombre__icontains=query))
+
+    return render(request, 'lista_categoria.html', {'categorias': categorias, 'query': query})
+
+@login_required
+@user_passes_test(es_encargado)
+def editar_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id)
+
+    if request.method == 'POST':
+        form = CategoriaForm(request.POST, request.FILES, instance=categoria)
+        if form.is_valid():
+            form.save()
+            # Redirige a donde consideres adecuado después de editar
+            return redirect('lista_categoria')
+    else:
+        form = CategoriaForm(instance=categoria)
+
+    return render(request, 'editar_categoria.html', {'form': form, 'categoria': categoria})
+
+@login_required
+@user_passes_test(es_encargado)
+def detalles_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id)
+    return render(request, 'detalle_categoria.html', {'categoria': categoria})
+
+@login_required
+@user_passes_test(es_encargado)
+def eliminar_categoria(request, categoria_id):
+    categoria = get_object_or_404(Categoria, id=categoria_id)
+
+    if request.method == 'POST':
+        categoria.delete()
+        messages.success(request, "Categoría eliminada con éxito.")
+        return redirect('lista_categoria')  # Redirige a la lista de categorías
+
+    return render(request, 'confirmar_eliminacion_categoria.html', {'categoria': categoria})
+
+
+@login_required
+@user_passes_test(es_encargado)
+def modificar_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    
+    try:
+        user_profile = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        # Si no existe un UserProfile, maneja la situación. Por ejemplo:
+        messages.error(request, "No existe un perfil para este usuario.")
+        return redirect('lista_usuarios')  # Redirige a alguna página relevante
+
+
+    if request.method == 'POST':
+        user_form = UserUpdateForm(request.POST, instance=user)
+        profile_form = UserProfileUpdateForm(request.POST, instance=user_profile)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'El usuario ha sido actualizado.')
+            return redirect('lista_usuarios')  # Redirige a donde sea apropiado
+    else:
+        user_form = UserUpdateForm(instance=user)
+        profile_form = UserProfileUpdateForm(instance=user_profile)
+
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form
+    }
+    return render(request, 'modificar_usuario.html', context)
+
+@login_required
+@user_passes_test(es_encargado)
+def lista_usuarios(request):
+    usuarios = User.objects.all()
+    return render(request, 'lista_usuarios.html', {'usuarios': usuarios})
+
+@login_required
+@user_passes_test(es_encargado)
+def eliminar_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == "POST":
+        user.delete()  # Esto también eliminará el UserProfile debido a la relación en cascada
+        messages.success(request, "Usuario eliminado con éxito.")
+        return redirect('lista_usuarios')  # Redirige a la lista de usuarios
+
+    return render(request, 'eliminar_usuario.html', {'user': user})
+
+@login_required
+@user_passes_test(es_encargado)
+def detalles_usuario(request, user_id):
+    user = get_object_or_404(User, id=user_id)
+    try:
+        user_profile = UserProfile.objects.get(user=user)
+    except UserProfile.DoesNotExist:
+        user_profile = None
+        messages.warning(request, "Este usuario no tiene un perfil asociado.")
+
+    context = {
+        'user': user,
+        'user_profile': user_profile,
+    }
+    return render(request, 'detalles_usuario.html', context)

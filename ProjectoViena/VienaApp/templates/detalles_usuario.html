@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block contenido %}
+<div class="container mt-4">
+    <h2>Detalles del Usuario: {{ user.username }}</h2>
+    <dl class="row">
+        <dt class="col-sm-3">Nombre de Usuario:</dt>
+        <dd class="col-sm-9">{{ user.username }}</dd>
+
+        <dt class="col-sm-3">Email:</dt>
+        <dd class="col-sm-9">{{ user.email }}</dd>
+
+        {% if user_profile %}
+            <dt class="col-sm-3">Nombre:</dt>
+            <dd class="col-sm-9">{{ user_profile.nombre }}</dd>
+
+            <dt class="col-sm-3">Apellido:</dt>
+            <dd class="col-sm-9">{{ user_profile.apellido }}</dd>
+
+            <dt class="col-sm-3">Cargo:</dt>
+            <dd class="col-sm-9">{{ user_profile.cargo }}</dd>
+
+            <dt class="col-sm-3">RUT:</dt>
+            <dd class="col-sm-9">{{ user_profile.rut }}</dd>
+        {% else %}
+            <div class="alert alert-warning" role="alert">
+                Este usuario no tiene un perfil asociado.
+            </div>
+        {% endif %}
+    </dl>
+    <a href="{% url 'modificar_usuario' user.id %}" class="btn btn-primary">Modificar</a>
+    <a href="{% url 'eliminar_usuario' user.id %}" class="btn btn-danger">Eliminar</a>
+</div>
+{% endblock %}

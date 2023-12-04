@@ -25,6 +25,16 @@ class ProductoForm(forms.ModelForm):
             'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
+class CategoriaForm(forms.ModelForm):
+    class Meta:
+        model = Categoria
+        fields = ['nombre', 'descripcion', 'imagen']
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control'}),
+            'descripcion': forms.Textarea(attrs={'class': 'form-control'}),
+            'imagen': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
 class MesaForm(forms.ModelForm):
     class Meta:
         model = Mesas
@@ -79,15 +89,25 @@ def clean_rut(self):
 
     return rut
 
-    def save(self, commit=True):
-        user = super(NewUserForm, self).save(commit=False)
-        user.email = self.cleaned_data["email"]
-        if commit:
-            user.save()
-            user_profile = UserProfile(user=user, nombre=self.cleaned_data["nombre"], 
-                                       apellido=self.cleaned_data["apellido"], 
-                                       cargo=self.cleaned_data["cargo"], 
-                                       rut=self.cleaned_data["rut"])
-            user_profile.save()
-        return user
-    
+def save(self, commit=True):
+    user = super(NewUserForm, self).save(commit=False)
+    user.email = self.cleaned_data["email"]
+    if commit:
+        user.save()
+        user_profile = UserProfile(user=user, nombre=self.cleaned_data["nombre"], 
+                                   apellido=self.cleaned_data["apellido"], 
+                                   cargo=self.cleaned_data["cargo"], 
+                                   rut=self.cleaned_data["rut"])
+        user_profile.save()
+    return user
+
+
+class UserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+class UserProfileUpdateForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['nombre', 'apellido', 'cargo', 'rut']

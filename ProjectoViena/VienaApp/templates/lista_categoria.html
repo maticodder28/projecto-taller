@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<div class="row">
+    <div class="col">
+        <div class="row">
+            <div class="col-9">
+                <div class="h2 text-center mt-3">Listado de Categorias</div>
+                <!-- Formulario de búsqueda -->
+                <form method="GET" class="mb-4">
+                    <div class="input-group mt-3">
+                        <input type="text" name="q" class="form-control" placeholder="Buscar categoria..."
+                            value="{{ query }}">
+                        <div class="input-group-append">
+                            <button type="submit" class="btn btn-outline-primary">Buscar</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+            <div class="col-3 mt-3">
+                <a class="btn btn-success" href="{% url 'crear_categoria' %}">Agregar Categoria</a>
+            </div>
+        </div>
+        <table class="table table-dark table-hover table-stripped">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Nombre</th>
+                    <th>Descripcion</th>
+                    <th>Imagen</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for categoria in categorias %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{categoria.nombre}} </td>
+                    <td>{{categoria.descripcion}}</td>
+                    <td>{{categoria.imagen}}</td>
+                    <td><a href="{% url 'detalles_categoria' categoria.id %}" class="btn btn-primary btn-sm">Ver Más</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>        
+    </div>
+</div>
+
+{% endblock %}

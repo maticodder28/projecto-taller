@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block contenido %}
+
+<div class="container mt-4">
+    <h2 class="text-center">Detalles de la Categoría: {{ categoria.nombre }}</h2>
+    <hr>
+    <div class="card mt-4">
+        <div class="card-body text-center">
+            <h5 class="card-title">{{ categoria.nombre }}</h5>
+            <p class="card-text">{{ categoria.descripcion }}</p>
+            {% if categoria.imagen %}
+                <img src="{{ categoria.imagen.url }}" alt="Imagen de {{ categoria.nombre }}" class="img-fluid" style="max-width: 200px; max-height: 200px;"/>
+            {% endif %}
+        </div>
+    </div>
+    <div class="row text-center mt-4">
+        <div class="col">
+            <a href="{% url 'editar_categoria' categoria.id %}" class="btn btn-primary">Modificar Categoría</a>
+        </div>
+        <div class="col">
+            <a href="{% url 'confirmar_eliminar_categoria' categoria.id %}" class="btn btn-danger">Eliminar Categoría</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -46,6 +46,16 @@ urlpatterns = [
     path('api/crear_comanda/', vistas.CrearComandaAPI.as_view(), name='api_crear_comanda'),
     path('api/confirmar_comanda/<int:comanda_id>/', vistas.confirmar_comanda_api, name='api_confirmar_comanda'),
     path('api-token-auth/', vistas.login, name='api_token_auth'),
+    path('trabajadores/', vistas.lista_trabajadores, name='lista_trabajadores'),
+    path('crear_categoria/', vistas.crear_categoria, name='crear_categoria'),
+    path('lista_categoria/', vistas.lista_categoria, name='lista_categoria'),
+    path('categoria/editar/<int:categoria_id>/', vistas.editar_categoria, name='editar_categoria'),
+    path('categoria/detalles/<int:categoria_id>/', vistas.detalles_categoria, name='detalles_categoria'),
+    path('categoria/eliminar/<int:categoria_id>/', vistas.eliminar_categoria, name='confirmar_eliminar_categoria'),
+    path('usuarios/', vistas.lista_usuarios, name='lista_usuarios'),
+    path('usuario/modificar/<int:user_id>/', vistas.modificar_usuario, name='modificar_usuario'),
+    path('usuario/eliminar/<int:user_id>/', vistas.eliminar_usuario, name='eliminar_usuario'),
+    path('usuario/detalles/<int:user_id>/', vistas.detalles_usuario, name='detalles_usuario'),
 
 ]
 

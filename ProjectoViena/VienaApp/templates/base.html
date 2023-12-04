@@ -45,6 +45,19 @@
                                 <li class="nav-item-dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                                         aria-expanded="false">
+                                        Categorias</a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'crear_categoria' %}">Agregar Categoria</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'lista_categoria' %}">Listado Categorias</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item-dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
                                         Comandas</a>
                                     <ul class="dropdown-menu">
                                         <li>
@@ -54,11 +67,21 @@
                                             <a class="dropdown-item" href="{% url 'vista_cocina' %}">Listado Comandas</a>
                                         </li>
                                     </ul>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'seleccionar_informes' %}">Informes</a>
+                                <li class="nav-item-dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        Trabajadores</a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'registro' %}">Registrar Trabajador</a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'lista_trabajadores' %}">Listado Trabajadores</a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{% url 'registro' %}">Registro Trabajadores</a>
+                                    <a class="nav-link" href="{% url 'seleccionar_informes' %}">Informes</a>
                                 </li>
                                 {% if user.is_authenticated %}
                                 <li class="nav-item">
