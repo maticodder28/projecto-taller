@@ -12,6 +12,7 @@
                     </div>
                     <div class="card-body">
                         <h5 class="card-title">Fecha: {{ comanda.fecha_creacion|date:"d M Y H:i" }}</h5>
+                        <p>Creada por: {{ comanda.usuario_asignado.username|default:"No asignado" }}</p>
                         <ul>
                             {% for detalle in comanda.detallecomanda_set.all %}
                                 <li>{{ detalle.producto.nombre }} x {{ detalle.cantidad }}</li>

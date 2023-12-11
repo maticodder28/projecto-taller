@@ -13,6 +13,12 @@ class ProductoForm(forms.ModelForm):
         empty_label="Seleccione una categoría"  # Texto para la opción vacía (opcional)
         
     )
+    
+    def clean_nombre(self):
+        nombre = self.cleaned_data['nombre']
+        if Productos.objects.filter(nombre__iexact=nombre).exclude(pk=self.instance.pk).exists():
+            raise forms.ValidationError("Ya existe un producto con este nombre.")
+        return nombre
 
     class Meta:
         model = Productos

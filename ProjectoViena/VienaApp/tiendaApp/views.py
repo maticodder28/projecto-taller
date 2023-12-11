@@ -1,3 +1,4 @@
+from django.forms import ValidationError
 from django.shortcuts import render, redirect, get_object_or_404
 from tiendaApp.forms import ProductoForm, NewUserForm, CategoriaForm, MesaForm, DetalleComandaForm, UserUpdateForm, UserProfileUpdateForm
 from tiendaApp.models import Productos, Categoria, Comanda, DetalleComanda, UserProfile, User
@@ -42,8 +43,12 @@ def ingresoproducto(request):
     if request.method == 'POST':
         form = ProductoForm(request.POST, request.FILES)
         if form.is_valid():
-            form.save()
-            return redirect('listaproductos')
+            try:
+                form.save()
+                return redirect('listaproductos')
+            except ValidationError as e:
+                # Manejar el error si hay un nombre duplicado
+                form.add_error(None, e)
     else:
         form = ProductoForm()
     return render(request, 'ingresoproducto.html', {'form': form})
@@ -170,8 +175,9 @@ def crear_comanda(request):
         })
 
 def vista_cocina(request):
-    comandas = Comanda.objects.prefetch_related('detallecomanda_set').all().order_by('fecha_creacion')
+    comandas = Comanda.objects.prefetch_related('detallecomanda_set').select_related('usuario_asignado__userprofile').all().order_by('-fecha_creacion')
     return render(request, 'vista_cocina.html', {'comandas': comandas})
+
 
 @login_required
 @user_passes_test(es_encargado)
