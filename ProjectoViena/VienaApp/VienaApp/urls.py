@@ -20,7 +20,7 @@ from django.urls import include, path
 from tiendaApp import views as vistas
 from django.conf import settings
 from django.conf.urls.static import static
-
+from VienaApi import views as vistasApi
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -56,7 +56,15 @@ urlpatterns = [
     path('usuario/modificar/<int:user_id>/', vistas.modificar_usuario, name='modificar_usuario'),
     path('usuario/eliminar/<int:user_id>/', vistas.eliminar_usuario, name='eliminar_usuario'),
     path('usuario/detalles/<int:user_id>/', vistas.detalles_usuario, name='detalles_usuario'),
-
+    path('productosApi/', vistasApi.productosApi, name='productosApi'),	
+    path('productosListApi/', vistasApi.productos_listado, name='productos_listadoApi'),
+    path('productosListApi/<int:pk>/', vistasApi.producto_detalle, name='producto_detalleApi'),
+    path('categoriaApi/', vistasApi.categoriaApi, name='categoriaApi'),
+    path('categoriaListApi/', vistasApi.categoria_listado, name='categoria_listadoApi'),
+    path('categoriaListApi/<int:pk>/', vistasApi.categoria_detalle, name='categoria_detalleApi'),
+    path('comandasApi/', vistasApi.crear_comanda, name='comandasApi'),
+    path('comandasListApi/', vistasApi.comanda_listado, name='comanda_listadoApi'),
+    path('comandasListApi/<int:pk>/', vistasApi.comanda_detalle, name='comanda_detalleApi'),
 ]
 
 if settings.DEBUG:
