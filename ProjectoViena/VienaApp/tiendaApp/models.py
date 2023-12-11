@@ -61,6 +61,7 @@ class Mesas(models.Model):
 class Comanda(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     productos = models.ManyToManyField(Productos, through='DetalleComanda')
+    usuario_asignado = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='comandas_asignadas')
     # Otros campos...
 
     def __str__(self):

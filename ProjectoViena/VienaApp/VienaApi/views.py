@@ -5,6 +5,7 @@ from VienaApi.serializers import ProductoSerializer, CategoriaSerializer, Comand
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
 
 # Create your views here.
 
@@ -111,11 +112,16 @@ def categoria_detalle(request, pk):
     
 @api_view(['POST'])
 def crear_comanda(request):
-    serializer = ComandaSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST':
+        # Asegúrate de que el usuario esté autenticado
+        if not request.user.is_authenticated:
+            return Response({'detail': 'Usuario no autenticado.'}, status=status.HTTP_403_FORBIDDEN)
+        
+        serializer = ComandaSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save(usuario_asignado=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'POST'])
 def comanda_listado(request):

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from tiendaApp.models import Productos, Categoria, Comanda, DetalleComanda
 
+
 class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Productos
@@ -18,15 +19,19 @@ class DetalleComandaSerializer(serializers.ModelSerializer):
         fields = ['producto', 'cantidad']
 
 class ComandaSerializer(serializers.ModelSerializer):
-    detallecomanda_set = DetalleComandaSerializer(many=True)
+    usuario_asignado = serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model = Comanda
-        fields = ['fecha_creacion', 'detallecomanda_set']
+        fields = '__all__'
 
     def create(self, validated_data):
-        detalles_data = validated_data.pop('detallecomanda_set')
+        detalles_data = validated_data.pop('detallecomanda_set', [])
         comanda = Comanda.objects.create(**validated_data)
         for detalle_data in detalles_data:
             DetalleComanda.objects.create(comanda=comanda, **detalle_data)
         return comanda
+    
+    def save(self, **kwargs):
+        kwargs['usuario_asignado'] = self.context['request'].user
+        return super().save(**kwargs)

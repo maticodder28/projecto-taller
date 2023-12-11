@@ -2,7 +2,6 @@ from django import forms
 from tiendaApp.models import Productos, Mesas, UserProfile, Comanda, DetalleComanda, Categoria
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-import re
 
 
 class ProductoForm(forms.ModelForm):

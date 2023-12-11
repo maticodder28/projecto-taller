@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from tiendaApp.serializers import ComandaSerializer
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
 from rest_framework_jwt.settings import api_settings
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -144,15 +145,29 @@ def register_request(request):
 
 @login_required
 def crear_comanda(request):
-    comestibles = Productos.objects.filter(categoria=1)  # ID para Comestibles
-    bebestibles = Productos.objects.filter(categoria=2)  # ID para Bebestibles
-    bebidasalcoholicas = Productos.objects.filter(categoria=3)  # ID para Bebidas Alcohólicas
-    
-    return render(request, 'crear_comanda.html', {
-        'comestibles': comestibles,
-        'bebestibles': bebestibles,
-        'bebidasalcoholicas': bebidasalcoholicas
-    })
+    if request.method == 'POST':
+        comanda = Comanda.objects.create(usuario_asignado=request.user)
+
+        for key, value in request.POST.items():
+            if key.startswith('cantidad_') and value:
+                producto_id = key.split('_')[1]
+                cantidad = int(value)
+                producto = get_object_or_404(Productos, id=producto_id)
+                DetalleComanda.objects.create(comanda=comanda, producto=producto, cantidad=cantidad)
+
+        return redirect('confirmar_comanda', comanda_id=comanda.id)
+
+    else:
+        # Asumiendo que comestibles, bebestibles y bebidasalcoholicas son tus categorías de productos
+        comestibles = Productos.objects.filter(categoria=1)
+        bebestibles = Productos.objects.filter(categoria=2)
+        bebidasalcoholicas = Productos.objects.filter(categoria=3)
+
+        return render(request, 'crear_comanda.html', {
+            'comestibles': comestibles,
+            'bebestibles': bebestibles,
+            'bebidasalcoholicas': bebidasalcoholicas
+        })
 
 def vista_cocina(request):
     comandas = Comanda.objects.prefetch_related('detallecomanda_set').all().order_by('fecha_creacion')
@@ -268,19 +283,7 @@ def informe_producto(request):
 def seleccionar_informes(request):
     return render(request, 'seleccionar_informes.html')
 
-def confirmar_comanda(request, comanda_id):
-    comanda = get_object_or_404(Comanda, id=comanda_id)
-    detalles_comanda = comanda.detallecomanda_set.all()  # Obtener todos los detalles de la comanda
-
-    total_comanda = sum(detalle.subtotal for detalle in detalles_comanda)
-
-    return render(request, 'confirmar_comanda.html', {
-        'comanda': comanda,
-        'detalles_comanda': detalles_comanda,
-        'total_comanda': total_comanda
-    })
-
-
+@login_required
 def comanda_exitosa(request, comanda_id):
     comanda = get_object_or_404(Comanda, id=comanda_id)
     detalles_comanda = comanda.detallecomanda_set.all()
@@ -292,20 +295,23 @@ def comanda_exitosa(request, comanda_id):
         'total_comanda': total_comanda 
     })
 
-class CrearComandaAPI(APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = ComandaSerializer(data=request.data)
-        if serializer.is_valid():
-            comanda = serializer.save()
-            return Response({'comanda_id': comanda.id}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['POST'])
-def confirmar_comanda_api(request, comanda_id):
+@login_required
+def confirmar_comanda(request, comanda_id):
     comanda = get_object_or_404(Comanda, id=comanda_id)
-    comanda.confirmada = True # Marcar la comanda como confirmada
-    comanda.save()
-    return Response({'success': True})
+    detalles_comanda = comanda.detallecomanda_set.all()
+    total_comanda = sum(detalle.subtotal for detalle in detalles_comanda)
+
+    if request.method == 'POST':
+        comanda.confirmada = True
+        comanda.save()
+        return redirect('comanda_exitosa', comanda_id=comanda.id)
+
+    return render(request, 'confirmar_comanda.html', {
+        'comanda': comanda,
+        'detalles_comanda': detalles_comanda,
+        'total_comanda': total_comanda
+    })
 
 @login_required
 @user_passes_test(es_encargado)

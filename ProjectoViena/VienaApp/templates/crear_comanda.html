@@ -3,7 +3,7 @@
 
 <div class="container mt-4 text-center">
     <h2>Crear Comanda</h2>
-    <form id="comandaForm" method="post">
+    <form method="post" action="{% url 'crear_comanda' %}">
         {% csrf_token %}
         <div class="mt-4">
             <h3>Comestibles</h3>
@@ -86,45 +86,6 @@
         <button type="submit" class="btn btn-primary mt-3">Crear Comanda</button>
     </form>
 </div>
-
-<script>
-    document.getElementById('comandaForm').addEventListener('submit', function(event) {
-        event.preventDefault();
-    
-        let detalles = [];
-        document.querySelectorAll('[data-producto-id]').forEach(input => {
-            let producto_id = parseInt(input.getAttribute('data-producto-id'));
-            let cantidad = parseInt(input.value);
-            if (cantidad > 0) {
-                detalles.push({ producto_id: producto_id, cantidad: cantidad });
-            }
-        });
-    
-        fetch("{% url 'api_crear_comanda' %}", {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ detallecomanda_set: detalles })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.comanda_id) {
-                // Redirige a la página de confirmación de la comanda
-                window.location.href = `/confirmar_comanda/${data.comanda_id}/`;
-            } else {
-                // Maneja los errores
-                console.error('Error en la creación de la comanda:', data);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        });
-    });
-</script>
-
-
 
 
 {% endblock %}
